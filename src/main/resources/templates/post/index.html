@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" 
+      th:replace="~{layout/mainbar :: layout(~{::section})}">
+<body>
+    <section>
+    
+    <!-- post table -->
+    	<div class="card-body">
+                    <div class="d-flex justify-content-between mt-3 mb-3">
+                    	<h5>Post Table</h5>
+                    	<a th:href="@{/post/create}" class="btn btn-primary btn-sm">Add</a>
+                    </div>
+                    <!-- post table -->
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th>Id</th>
+                                <th>Name</th>
+                                <th>Age</th>
+                                <th>Born Date</th>
+                                <th>Address</th>
+                                <th>Education</th>
+                                <th>Image</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="post,iter : ${posts}">
+							    <td th:text="${iter.index + 1}">1</td>
+							    <td th:text="${post.name}">Maung Aung</td>
+							    <td th:text="${post.age} + ' နှစ်'"></td>
+							    <td th:text="${post.bornDate}"></td>
+							    <td th:text="${post.address}"></td>
+							    <td th:text="${post.education != null ? post.education.name : 'N/A'}"></td>
+							    <td>
+							       <img th:src="@{'/images/' + ${post.image}}" width="100" height="100" alt="post image"/>
+							    </td>
+							    <td>
+							        
+							    </td>
+							</tr>
+
+                            
+                        </tbody>
+                    </table>
+            </div>
+    	
+    </section>
+</body>
+</html>

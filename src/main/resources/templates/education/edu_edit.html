@@ -1,29 +1,33 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" 
       th:replace="~{layout/mainbar :: layout(~{::section})}">
-      
 <body>
     <section>
         <div class="create-container">
             <div class="create-box">
                 <div class="form-header">
-                    <h2><i class="fa-solid fa-plus-circle"></i> Create Education</h2>
+                    <h2><i class="fa-solid fa-plus-circle"></i> Edit Education</h2>
                     <p>Enter the name of the new education record</p>
                 </div>
                 
-                <form th:action="@{/education/create}" th:object="${education}" method="post">
+                <form th:action="@{/education/edit/{id}(id=${education.id})}" th:object="${education}" method="post">
+                
+                <!-- id hidden -->
+    				<input type="hidden" th:field="*{id}" />
+    				
                     <div class="input-wrapper">
-                        <label for="name">Education Name</label>
+                        <label for="name">Education Name(Update)</label>
                         <div class="input-field">
                             <i class="fa-solid fa-tag"></i>
-                            <input type="text" id="name" name="name" th:field="*{name}">
-                            <p th:if="${#fields.hasErrors('name')}" th:errors = "*{name}" class="text-danger"></p>
+                            <input type="text" th:value="${education.name}" id="name" name="name" 
+                            th:field="*{name}">
+                            <p th:if="${#fields.hasErrors('name')}" th:errors="*{name}" class="text-danger"></p>
                         </div>
                     </div>
                     
                     <div class="button-group">
-                        <button type="submit" class="btn-create">
-                            <i class="fa-solid fa-save"></i> Save Record
+                        <button type="submit" class="btn btn-success">
+                            <i class="fa-solid fa-save"></i> Update
                         </button>
                         <a th:href="@{/education/all}" class="btn-cancel">Cancel</a>
                     </div>

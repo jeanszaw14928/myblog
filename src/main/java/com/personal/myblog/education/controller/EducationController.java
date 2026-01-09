@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.personal.myblog.education.model.Education;
 import com.personal.myblog.education.service.EducationService;
@@ -31,7 +32,7 @@ public class EducationController {
 	public String eduAll(Model model) {
 		List<Education> education = educationService.all();
 		model.addAttribute("education",education);
-		return "education/education.html";
+		return "education/index";
 	}
 	
 	// create
@@ -42,11 +43,15 @@ public class EducationController {
 	}
 	// add education
 	@PostMapping("/create")
-	public String eduCreate(@Valid @ModelAttribute("education") Education education,BindingResult result,Model model) {
+	public String eduCreate(@Valid @ModelAttribute("education") Education education,BindingResult result,RedirectAttributes redirectAttributes,Model model) {
 		if(result.hasErrors()) {
 			return "education/edu_create";
 		}		
 		educationService.add(education);
+		
+		redirectAttributes.addFlashAttribute("eduName", education.getName());
+		redirectAttributes.addFlashAttribute("success",true);
+		 
 		return "redirect:/education/all";
 	}
 	
@@ -55,16 +60,18 @@ public class EducationController {
 	public String edit(@PathVariable int id,Model model) {
 		Education education = educationService.get(id);
 		model.addAttribute("education",education);
-		return "education/edu_update.html";
+		return "education/edu_edit";
 	}
 	
 	// update
 	@PostMapping("edit/{id}")
-	public String update(@PathVariable int id,@Valid @ModelAttribute("education") Education education,BindingResult result) {
+	public String update(@PathVariable int id,@Valid @ModelAttribute("education") Education education,BindingResult result,RedirectAttributes redirectAttributes) {
 		if(result.hasErrors()) {
-			return "education/edu_update";
+			return "education/edu_edit";
 		}
 		educationService.update(id, education.getName());
+		 // success message
+	    redirectAttributes.addFlashAttribute("successMessage", "Education updated successfully!");
 		return "redirect:/education/all";
 	}
 	
@@ -73,5 +80,11 @@ public class EducationController {
 	public String delete(@PathVariable int id) {
 		educationService.drop(id);
 		return "redirect:/education/all";
+	}
+	
+	// modal alert
+	@GetMapping("/modal")
+	public String modal() {
+		return "education/modaltitle";
 	}
 }

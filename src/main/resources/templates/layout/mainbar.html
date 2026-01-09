@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:fragment="layout(content)">
+<head th:replace="~{layout/head :: head}"></head>
+<body>
+    <div class="app-container">
+        <aside th:replace="~{layout/sidebar :: sidebar}"></aside>
+
+        <div class="main-wrapper">
+            <header>
+                <div class="header-left">
+                    <h2 th:text="${pageTitle}">Dashboard</h2>
+                </div>
+                <div class="header-right">
+                    <span>Welcome, <strong>Admin</strong></span>
+                    <button class="sign-in-btn">Sign Out</button>
+                </div>
+            </header>
+
+            <main class="content">
+                <div th:replace="${content}"></div>
+            </main>
+        </div>
+    </div>
+</body>
+</html>

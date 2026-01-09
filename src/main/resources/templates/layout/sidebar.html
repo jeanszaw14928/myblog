@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<div th:fragment="sidebar" class="sidebar">
+    <div class="sidebar-header">
+        <i class="fa-solid fa-blog"></i> My Blog
+    </div>
+    <nav>
+        <ul>
+            <li><a th:href="@{/}"><i class="fa-solid fa-gauge"></i> Dashboard</a></li>
+            <li class="active"><a th:href="@{/education/all}"><i class="fa-solid fa-graduation-cap"></i> Education</a></li>
+            <li><a th:href="@{/post/all}"><i class="fa-solid fa-user"></i>Post</a></li>
+            <li><a th:href="@{/settings}"><i class="fa-solid fa-gear"></i> Settings</a></li>
+        </ul>
+    </nav>
+</div>
+</html>

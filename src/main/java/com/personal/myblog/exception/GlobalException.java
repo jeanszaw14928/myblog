@@ -18,5 +18,12 @@ public class GlobalException {
 		model.addAttribute("errMsg", e.getMessage());
 		return "errorpage";
 	}
+	
+	// post error
+		@ExceptionHandler(PostNotFoundException.class)
+		public String handleException(PostNotFoundException e, Model model) {
+			model.addAttribute("errMsg", e.getMessage());
+			return "errorpage";
+		}
 
 }
