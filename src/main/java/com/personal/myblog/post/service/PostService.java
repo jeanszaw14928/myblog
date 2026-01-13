@@ -7,16 +7,9 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.multipart.MultipartFile;
-
 import com.personal.myblog.exception.PostNotFoundException;
-import com.personal.myblog.image.ImageService;
-import com.personal.myblog.post.Dto.PostDto;
 import com.personal.myblog.post.model.PostModel;
 import com.personal.myblog.post.repo.PostRepo;
-
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -62,5 +55,10 @@ public class PostService {
 	        }
 	        return Period.between(bornDate, LocalDate.now()).getYears();
 	    }
+	 
+	 // delete method
+	 public void drop(@PathVariable Long id) {
+		 postRepo.deleteById(id);
+	 }
 
 }

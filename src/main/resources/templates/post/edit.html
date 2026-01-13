@@ -6,12 +6,13 @@
     <section>
         <div class="create-container">
     <div class="create-box">
-        <div class="form-header">
-            <h2><i class="fa-solid fa-user-plus"></i> အသစ်ဖန်တီးပါ</h2>
+        <div class="form-header d-flex justify-content-between mb-3">
+            <h2><i class="fa-solid fa-user-plus"></i>ပြုပြင်ရန်</h2>
+            <a th:href="@{/post/all}" class="btn btn-primary btn-sm">Back</a>
         </div>
         
-        <form th:action="@{/post/add}" method="post" th:object="${post}" enctype="multipart/form-data">
-            
+        <form th:action="@{/post/update/{id}(id=${post.id})}" method="post" th:object="${post}" enctype="multipart/form-data">
+            <input type="hidden" th:field="*{id}">
             <div class="form-grid">
                 <div class="form-group">
                     <label>အမည် (Name)</label>
@@ -19,15 +20,19 @@
                         <input type="text" th:field="*{name}" placeholder="နာမည်ရိုက်ထည့်ပါ" required>
                         <i class="fa-solid fa-user"></i>
                     </div>
-                </div>
-
+                </div>  
+                
                 <div class="form-group">
-                    <label>မွေးသက္ကရာဇ် (Born Date)</label>
-                    <div class="input-with-icon">
-                        <input type="date" th:field="*{bornDate}">
-                    </div>
-                </div>
-
+				    <label>မွေးသက္ကရာဇ် (Born Date)</label>
+				    <div class="input-with-icon">
+				        <input type="date" 
+				               id="bornDate" 
+				               name="bornDate" 
+				               th:value="${post.bornDate != null ? #temporals.format(post.bornDate, 'yyyy-MM-dd') : ''}" 
+				               class="form-control">
+				    </div>
+				</div>
+                
                 <div class="form-group">
                     <label>ကျား/မ (Gender)</label>
                     <div class="radio-flex">
@@ -39,7 +44,7 @@
                         </label>
                     </div>
                 </div>
-
+                
                 <div class="form-group">
                     <label>ပညာအရည်အချင်း</label>
                     <select th:field="*{educationId}">
@@ -50,21 +55,27 @@
                         ></option>
                     </select>
                 </div>
+                             
             </div>
 
             <div class="form-group full-width">
                 <label>နေရပ်လိပ်စာ (Address)</label>
                 <textarea name="address" th:field="*{address}" rows="3" placeholder="နေရပ်လိပ်စာအပြည့်အစုံ ရိုက်ထည့်ပါ"></textarea>
             </div>
+            
+            <!-- old image preview -->
+			<div th:if="${post.image != null}" class="from-group full-width">
+			    <img th:src="@{/uploads/{img}(img=${post.image})}"
+			         width="120" alt="post image">
+			</div>
+			
+			<!-- keep old image -->
+			<input type="hidden" th:field="*{image}" />
+			
+			<!-- upload new image -->
+			<input type="file" th:field="*{file}" />
 
-            <div class="form-group full-width">
-                <label>ဖိုင်တင်ရန် (File Upload)</label>
-                <div class="file-input">
-                   <input type="file" th:field="*{file}" id="file">
-                    <label for="file"><i class="fa-solid fa-cloud-arrow-up"></i> Choose a file...</label>
-                </div>
-            </div>
-
+                      
             <button type="submit" class="btn-create-pro">
                 <i class="fa-solid fa-check-circle"></i> Create Now
             </button>

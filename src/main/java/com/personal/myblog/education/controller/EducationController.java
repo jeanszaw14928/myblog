@@ -65,7 +65,9 @@ public class EducationController {
 	
 	// update
 	@PostMapping("edit/{id}")
-	public String update(@PathVariable int id,@Valid @ModelAttribute("education") Education education,BindingResult result,RedirectAttributes redirectAttributes) {
+	public String update(@PathVariable int id,@Valid
+			@ModelAttribute("education") Education education,BindingResult result,
+			RedirectAttributes redirectAttributes) {
 		if(result.hasErrors()) {
 			return "education/edu_edit";
 		}

@@ -7,11 +7,13 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import com.personal.myblog.education.model.Education;
 import com.personal.myblog.education.repo.EducationRepo;
+import com.personal.myblog.education.service.EducationService;
 import com.personal.myblog.image.ImageService;
 import com.personal.myblog.post.Dto.PostDto;
 import com.personal.myblog.post.model.PostModel;
@@ -26,6 +28,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class PostController {
 	// education repo
+	private final EducationService educationService;
 	private final EducationRepo educationRepo;
 	private final PostService postService;
 	private final PostRepo postRepo;
@@ -48,7 +51,7 @@ public class PostController {
 	@GetMapping("/create")
 	public String add(Model model) {
 		model.addAttribute("post",new PostDto());
-		model.addAttribute("educations",educationRepo.findAll());
+		model.addAttribute("educations",educationService.all());
 		return "post/post_create";
 	}
 	// post form
@@ -59,7 +62,7 @@ public class PostController {
 	        Model model) {
 
 		if (result.hasErrors()) {
-		    model.addAttribute("educations", educationRepo.findAll());
+		    model.addAttribute("educations", educationService.all());
 		    return "post/post_create";
 		}
 
@@ -70,7 +73,7 @@ public class PostController {
 	    post.setBornDate(postDto.getBornDate());
 
 	    // education
-	    Education edu = educationRepo.findById(postDto.getEducation())
+	    Education edu = educationRepo.findById(postDto.getEducationId())
 	            .orElseThrow(() -> new IllegalArgumentException("Invalid education id"));
 	    post.setEducation(edu);
 
@@ -82,6 +85,66 @@ public class PostController {
 
 	    postService.create(post);
 	    return "redirect:/post/all";
+	}
+	// post edit
+	@GetMapping("/edit/{id}")
+	public String edit(@PathVariable Long id, Model model) {
+
+	    PostModel post = postService.get(id);
+
+	    PostDto dto = new PostDto();
+	    dto.setId(post.getId());
+	    dto.setName(post.getName());
+	    dto.setAddress(post.getAddress());
+	    dto.setBornDate(post.getBornDate());
+	    dto.setGender(post.getGender());
+	    dto.setEducationId(post.getEducation().getId());
+	    dto.setImage(post.getImage()); // old image
+	    model.addAttribute("post", dto);
+	    model.addAttribute("educations", educationService.all());
+
+	    return "post/edit";
+	}
+
+	// post update
+	@PostMapping("/update/{id}")
+	public String update(
+	        @PathVariable Long id,
+	        @Valid @ModelAttribute("post") PostDto postDto,
+	        BindingResult result,
+	        Model model) {
+
+	    if (result.hasErrors()) {
+	        model.addAttribute("educations", educationService.all());
+	        return "post/edit";
+	    }
+
+	    PostModel post = postService.get(id);
+
+	    post.setName(postDto.getName());
+	    post.setAddress(postDto.getAddress());
+	    post.setBornDate(postDto.getBornDate());
+	    post.setGender(postDto.getGender());
+
+	    // 🔑 education mapping
+	    Education edu = educationService.get(postDto.getEducationId());
+	    post.setEducation(edu);
+	 // ပုံကို ImageService သုံးပြီး Save လုပ်ပါ
+	    if (postDto.getFile() != null && !postDto.getFile().isEmpty()) {
+	        String fileName = imageService.saveFile(postDto.getFile()); // ဒီနေရာမှာ ပုံကို တကယ် သိမ်းလိုက်တာပါ
+	        post.setImage(fileName);
+	    }else {
+	    	// no new upload -keep old image
+	    	post.setImage(postDto.getImage());
+	    }
+	    postService.edit(id,post);
+	    return "redirect:/post/all";
+	}
+	// post delete
+	@GetMapping("/delete/{id}")
+	public String delete(@PathVariable Long id) {
+		postService.drop(id);
+		return "redirect:/post/all";
 	}
 
 }

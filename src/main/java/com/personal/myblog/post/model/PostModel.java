@@ -2,10 +2,7 @@ package com.personal.myblog.post.model;
 
 import java.time.LocalDate;
 import java.time.Period;
-
-import org.springframework.data.annotation.Transient;
 import org.springframework.format.annotation.DateTimeFormat;
-
 import com.personal.myblog.education.model.Education;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -16,6 +13,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
 import jakarta.validation.constraints.Past;
 import lombok.Data;
 
@@ -40,9 +38,16 @@ public class PostModel {
 	@Past(message="Born Date must be in the past")
 	@DateTimeFormat(pattern = "yyyy-MM-dd")
 	private LocalDate bornDate;
-	// no save database2.
+	// no save database2
 	@Transient
 	private int age;
+	
+	public int getAge() {
+        if (this.bornDate != null) {
+            return Period.between(this.bornDate, LocalDate.now()).getYears();
+        }
+        return 0;
+    }
 
 	// manytoone
 	@ManyToOne

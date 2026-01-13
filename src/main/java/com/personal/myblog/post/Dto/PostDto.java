@@ -11,12 +11,13 @@ import lombok.Data;
 
 @Data
 public class PostDto {
-
+	private Long id;
 	private String name;
 	private String address;
-	private MultipartFile file;
+	private String image; // old image name
+	private MultipartFile file; // new upload
 	private Gender gender;
 	private LocalDate bornDate;
 	@NotNull(message = "Education must be selected")
-	private Integer education;
+	private Integer educationId;
 }
