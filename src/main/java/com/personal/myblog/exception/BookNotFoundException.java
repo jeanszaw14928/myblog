@@ -1,10 +1,9 @@
 package com.personal.myblog.exception;
 
-public class FileSaveErrorException extends RuntimeException{
-
+public class BookNotFoundException extends RuntimeException{
 	private static final long serialVersionUID = 1L;
 
-	public FileSaveErrorException(String message) {
+	public BookNotFoundException(String message) {
 		super(message);
 	}
 }

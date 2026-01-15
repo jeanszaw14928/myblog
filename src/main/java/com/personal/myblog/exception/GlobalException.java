@@ -25,5 +25,12 @@ public class GlobalException {
 			model.addAttribute("errMsg", e.getMessage());
 			return "errorpage";
 		}
+		
+	// book error
+		@ExceptionHandler(BookNotFoundException.class)
+		public String handleException(BookNotFoundException e, Model model) {
+			model.addAttribute("errMsg",e.getMessage());
+			return "errorpage";
+		}
 
 }

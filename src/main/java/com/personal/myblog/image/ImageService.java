@@ -4,12 +4,13 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
+import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.personal.myblog.exception.FileSaveErrorException;
 
 @Service
 public class ImageService {
@@ -40,6 +41,26 @@ public class ImageService {
         } catch (IOException e) {
             throw new RuntimeException("Image upload failed");
         }
+    }
+    
+    // enum image type
+    @Value("${upload.root}")
+    private String uploadRoot;
+    
+    public String save(MultipartFile file,ImageType type)throws IOException {
+    	
+    	Path uploadPath = Paths.get(uploadRoot,type.getFolder());
+    	// folder create
+    	if(!Files.exists(uploadPath)) {
+    		Files.createDirectories(uploadPath);
+    	}
+    	
+    	String fileName = UUID.randomUUID() +"_"+file.getOriginalFilename();
+    	Path filePath = uploadPath.resolve(fileName);
+    	Files.copy(file.getInputStream(), filePath,StandardCopyOption.REPLACE_EXISTING);
+    	
+    	// DB relative path
+    	return type.getFolder()+"/"+fileName;
     }
 }
 
