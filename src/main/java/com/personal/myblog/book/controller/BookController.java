@@ -36,14 +36,16 @@ public class BookController {
 	// all books
 	@GetMapping("/all")
 	public String bookAll(
+			@RequestParam(required=false) String keyword,
 			@RequestParam (defaultValue="")String author,
 			@RequestParam(defaultValue="0")int page,
 			@RequestParam(defaultValue="5") int size,
 			Model model) {
 		
-		Pageable pageable = PageRequest.of(page, size,Sort.by("author").ascending());
+		Pageable pageable = PageRequest.of(page, size,Sort.by("id").ascending());
 		Page<Book> bookPage = bookService.bookAll(author, pageable);
 		model.addAttribute("bookPage",bookPage);
+		model.addAttribute("author",author); // search value ပြဖို့
 		return "book/index";
 	}
 	
@@ -112,6 +114,13 @@ public class BookController {
 		}
 		bookService.update(id, book);
 		
+		return "redirect:/book/all";
+	}
+	
+	// book delete
+	@GetMapping("/delete/{id}")
+	public String delete(@PathVariable int id) {
+		bookService.drop(id);
 		return "redirect:/book/all";
 	}
 }

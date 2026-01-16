@@ -35,7 +35,11 @@
 							    <td th:text="${post.gender}"></td>
 							    <td th:text="${post.education != null ? post.education.name : 'N/A'}"></td>
 							    <td>
-							       <img th:src="@{'/images/' + ${post.image}}" width="100" height="100" alt="post image"/>
+							       <img th:if="${post.image != null}"
+								     th:src="@{'/uploads/post-images/' + ${post.image}}"
+								     width="100" height="100"
+								     alt="post image"/>
+
 							    </td>
 							    <td>
 							       <a th:href="@{/post/edit/{id}(id=${post.id})}" class="btn btn-success btn-sm"><i class="fa-regular fa-pen-to-square"></i>Edit</a>

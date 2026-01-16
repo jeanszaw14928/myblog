@@ -2,7 +2,8 @@ package com.personal.myblog.image;
 
 public enum ImageType {
 
-	Book("book-images");
+	Book("book-images"),
+	Post("post-images");
 	
 	private final String folder;
 	

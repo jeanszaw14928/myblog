@@ -1,5 +1,6 @@
 package com.personal.myblog.post.controller;
 
+import java.io.IOException;
 import java.util.List;
 
 import org.springframework.stereotype.Controller;
@@ -15,6 +16,7 @@ import com.personal.myblog.education.model.Education;
 import com.personal.myblog.education.repo.EducationRepo;
 import com.personal.myblog.education.service.EducationService;
 import com.personal.myblog.image.ImageService;
+import com.personal.myblog.image.ImageType;
 import com.personal.myblog.post.Dto.PostDto;
 import com.personal.myblog.post.model.PostModel;
 import com.personal.myblog.post.repo.PostRepo;
@@ -59,7 +61,7 @@ public class PostController {
 	public String create(
 	        @Valid @ModelAttribute("post") PostDto postDto,
 	        BindingResult result,
-	        Model model) {
+	        Model model) throws IOException {
 
 		if (result.hasErrors()) {
 		    model.addAttribute("educations", educationService.all());
@@ -79,7 +81,7 @@ public class PostController {
 
 	 // ပုံကို ImageService သုံးပြီး Save လုပ်ပါ
 	    if (postDto.getFile() != null && !postDto.getFile().isEmpty()) {
-	        String fileName = imageService.saveFile(postDto.getFile()); // ဒီနေရာမှာ ပုံကို တကယ် သိမ်းလိုက်တာပါ
+	        String fileName = imageService.save(postDto.getFile(),ImageType.Post); // ဒီနေရာမှာ ပုံကို တကယ် သိမ်းလိုက်တာပါ
 	        post.setImage(fileName);
 	    }
 
@@ -112,7 +114,7 @@ public class PostController {
 	        @PathVariable Long id,
 	        @Valid @ModelAttribute("post") PostDto postDto,
 	        BindingResult result,
-	        Model model) {
+	        Model model) throws IOException {
 
 	    if (result.hasErrors()) {
 	        model.addAttribute("educations", educationService.all());
@@ -131,20 +133,41 @@ public class PostController {
 	    post.setEducation(edu);
 	 // ပုံကို ImageService သုံးပြီး Save လုပ်ပါ
 	    if (postDto.getFile() != null && !postDto.getFile().isEmpty()) {
-	        String fileName = imageService.saveFile(postDto.getFile()); // ဒီနေရာမှာ ပုံကို တကယ် သိမ်းလိုက်တာပါ
-	        post.setImage(fileName);
-	    }else {
-	    	// no new upload -keep old image
-	    	post.setImage(postDto.getImage());
+
+	        // 1. save new image
+	        String newFileName = imageService.save(postDto.getFile(), ImageType.Post);
+
+	        // 2. delete old image
+	        if (post.getImage() != null) {
+	            imageService.delete(post.getImage(), ImageType.Post);
+	        }
+
+	        // 3. set new image
+	        post.setImage(newFileName);
+
+	    } else {
+	        post.setImage(postDto.getImage());
 	    }
+
 	    postService.edit(id,post);
 	    return "redirect:/post/all";
 	}
 	// post delete
 	@GetMapping("/delete/{id}")
-	public String delete(@PathVariable Long id) {
-		postService.drop(id);
-		return "redirect:/post/all";
+	public String deletePost(@PathVariable Long id) {
+
+	    PostModel post = postService.get(id);
+
+	    // 🔥 image 먼저 delete
+	    if (post.getImage() != null) {
+	        imageService.delete(post.getImage(), ImageType.Post);
+	    }
+
+	    // 🔥 post delete
+	    postService.drop(id);
+
+	    return "redirect:/post/all";
 	}
+
 
 }

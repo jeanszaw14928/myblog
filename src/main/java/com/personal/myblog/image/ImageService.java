@@ -5,62 +5,112 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
-import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 
 @Service
 public class ImageService {
 
-    @Value("${upload.path}")
-    private String uploadDir;
+    private final Path rootPath;
 
-    public String saveFile(MultipartFile file) {
+    public ImageService(@Value("${upload.root}") String uploadRoot) {
+        this.rootPath = Paths.get(uploadRoot)
+                .toAbsolutePath()
+                .normalize();
+    }
 
-        if (file.isEmpty()) return null;
+    /**
+     * ============================
+     * Save Image
+     * ============================
+     */
+    public String save(MultipartFile file, ImageType type) {
 
         try {
-            Path uploadPath = Paths.get(uploadDir);
+            // eg: /home/copycoder/myblog-images/post-images
+            Path folderPath = rootPath
+                    .resolve(type.name().toLowerCase() + "-images")
+                    .normalize();
 
-            if (!Files.exists(uploadPath)) {
-                Files.createDirectories(uploadPath);
+            Files.createDirectories(folderPath);
+
+            // clean & unique filename
+            String originalName = StringUtils.cleanPath(file.getOriginalFilename());
+            String fileName = System.currentTimeMillis() + "_" + originalName;
+
+            Path targetLocation = folderPath.resolve(fileName).normalize();
+
+            // 🔐 security check
+            if (!targetLocation.startsWith(rootPath)) {
+                throw new RuntimeException("Cannot store file outside upload directory.");
             }
 
-            String fileName =
-                    System.currentTimeMillis() + "_" +
-                    file.getOriginalFilename().replace(" ", "_");
-
-            Path filePath = uploadPath.resolve(fileName);
-            Files.copy(file.getInputStream(), filePath);
+            Files.copy(
+                    file.getInputStream(),
+                    targetLocation,
+                    StandardCopyOption.REPLACE_EXISTING
+            );
 
             return fileName;
 
-        } catch (IOException e) {
-            throw new RuntimeException("Image upload failed");
+        } catch (IOException ex) {
+            throw new RuntimeException("Could not store file. Please try again!", ex);
         }
     }
-    
-    // enum image type
-    @Value("${upload.root}")
-    private String uploadRoot;
-    
-    public String save(MultipartFile file,ImageType type)throws IOException {
-    	
-    	Path uploadPath = Paths.get(uploadRoot,type.getFolder());
-    	// folder create
-    	if(!Files.exists(uploadPath)) {
-    		Files.createDirectories(uploadPath);
-    	}
-    	
-    	String fileName = UUID.randomUUID() +"_"+file.getOriginalFilename();
-    	Path filePath = uploadPath.resolve(fileName);
-    	Files.copy(file.getInputStream(), filePath,StandardCopyOption.REPLACE_EXISTING);
-    	
-    	// DB relative path
-    	return type.getFolder()+"/"+fileName;
+
+    /**
+     * ============================
+     * Delete Image
+     * ============================
+     */
+    public void delete(String fileName, ImageType type) {
+
+        try {
+            if (fileName == null || fileName.isBlank()) return;
+
+            Path folderPath = rootPath
+                    .resolve(type.name().toLowerCase() + "-images")
+                    .normalize();
+
+            Path filePath = folderPath.resolve(fileName).normalize();
+
+            // 🔐 security check
+            if (!filePath.startsWith(rootPath)) {
+                throw new RuntimeException("Cannot delete file outside upload directory.");
+            }
+
+            Files.deleteIfExists(filePath);
+
+        } catch (IOException ex) {
+            throw new RuntimeException("Could not delete file: " + fileName, ex);
+        }
+    }
+
+    /**
+     * ============================
+     * Replace Image (Update Helper)
+     * ============================
+     */
+    public String replace(
+            MultipartFile newFile,
+            String oldFileName,
+            ImageType type
+    ) {
+
+        if (newFile == null || newFile.isEmpty()) {
+            return oldFileName;
+        }
+
+        // save new image
+        String newFileName = save(newFile, type);
+
+        // delete old image
+        delete(oldFileName, type);
+
+        return newFileName;
     }
 }
-

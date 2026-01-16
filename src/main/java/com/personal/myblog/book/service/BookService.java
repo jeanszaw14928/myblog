@@ -1,5 +1,6 @@
 package com.personal.myblog.book.service;
 
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -24,8 +25,10 @@ public class BookService {
 	        return bookRepo.findAll(pageable);
 	    }
 
-		return bookRepo.findByAuthor(author,pageable);
+		return bookRepo.findByAuthorContaining(author,pageable);
 	}
+	
+	
 	
 	// find by id
 	public Book getId(int id) {

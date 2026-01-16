@@ -6,12 +6,33 @@
     
     <!-- post table -->
     	<div class="card-body">
+    				<!-- search button -->
+    				<form class="d-flex" th:action="@{/book/all}" method="get">
+					    <input class="form-control me-2"
+					           type="text"
+					           name="author"
+					           th:value="${author}"
+					           placeholder="Search by author">
+					    <button class="btn btn-outline-success" type="submit">
+					        Search
+					    </button>
+					</form>
+
+    	
+    				<div th:if="${bookPage.empty}">
+					    <p style="color:red; font-weight:bold;">
+					        No data found
+					    </p>
+					    <a th:href="@{/book/all}" class="btn btn-primary btn-md">Back</a>
+					    
+					</div>
+    	
                     <div class="d-flex justify-content-between mt-3 mb-3">
                     	<h5>Book Table</h5>
                     	<a th:href="@{/book/create}" class="btn btn-primary btn-sm">Add</a>
                     </div>
                     <!-- post table -->
-                    <table class="table table-bordered">
+                    <table class="table table-bordered" th:if="${!bookPage.empty}">
                         <thead>
                             <tr>
                                 <th>Id</th>
