@@ -36,7 +36,7 @@
 							    <td th:text="${post.education != null ? post.education.name : 'N/A'}"></td>
 							    <td>
 							       <img th:if="${post.image != null}"
-								     th:src="@{'/uploads/post-images/' + ${post.image}}"
+								     th:src="@{${postImagePath} + ${post.image}}"
 								     width="100" height="100"
 								     alt="post image"/>
 

@@ -1,6 +1,6 @@
 package com.personal.myblog.book.service;
-
-
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -20,11 +20,14 @@ public class BookService {
 	private final BookRepo bookRepo;
 	
 	// book list
+	@Cacheable(value="books")
 	public Page<Book> bookAll(String author,Pageable pageable){
+		System.out.println("---fetching from database(Not from Cache)---");
+		
 		if (author == null || author.isBlank()) {
 	        return bookRepo.findAll(pageable);
 	    }
-
+		System.out.println("--- Fetching from Database (Not from Cache) ---");
 		return bookRepo.findByAuthorContaining(author,pageable);
 	}
 	
@@ -36,6 +39,7 @@ public class BookService {
 	}
 	
 	// create
+	@CacheEvict(value = "books", allEntries = true)
 	public void create(Book book) {
 		bookRepo.save(book);
 	}

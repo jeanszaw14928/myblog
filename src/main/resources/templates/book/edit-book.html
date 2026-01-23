@@ -34,8 +34,8 @@
                 <label>ဖိုင်တင်ရန် (File Upload)</label>
                 <!-- old image preview -->
 			<div th:if="${book.image != null}" class="from-group full-width">
-			    <img th:src="@{/uploads/{img}(img=${book.image})}"
-			         width="120" alt="book image">
+			    <img th:src="@{${bookImagePath} + ${book.image}}"
+         		width="120" alt="book image">
 			</div>
 			
 			<!-- keep old image -->

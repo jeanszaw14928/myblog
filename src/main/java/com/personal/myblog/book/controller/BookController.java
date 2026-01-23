@@ -2,6 +2,7 @@ package com.personal.myblog.book.controller;
 
 import java.io.IOException;
 
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -46,16 +47,19 @@ public class BookController {
 		Page<Book> bookPage = bookService.bookAll(author, pageable);
 		model.addAttribute("bookPage",bookPage);
 		model.addAttribute("author",author); // search value ပြဖို့
+		model.addAttribute("pageTitle","Book Page"); // book index title
 		return "book/index";
 	}
 	
 	// create page
 	@GetMapping("/create")
-	public String create() {
+	public String create(Model model) {
+		model.addAttribute("pageTitle","Create Book");
 		return "book/book_create";
 	}
 	
 	// create form
+	@CacheEvict(value = "books", allEntries = true)
 	@PostMapping("/create")
 	public String create(@Valid @ModelAttribute BookDto bookDto,BindingResult result) throws IOException {
 		if(result.hasErrors()) {
@@ -89,6 +93,7 @@ public class BookController {
 		bookDto.setImage(book.getImage());
 		
 		model.addAttribute("book",bookDto);
+		model.addAttribute("pageTitle","Edit:" + bookDto.getAuthor());
 		return "book/edit-book";
 	}
 	
@@ -104,14 +109,23 @@ public class BookController {
 		book.setAuthor(bookDto.getAuthor());
 		book.setPublishDate(bookDto.getPublishDate());
 		
-		// image save new upload
-		if(bookDto.getFile() != null && !bookDto.getFile().isEmpty()) {
-			String fileName = imageService.save(bookDto.getFile(),ImageType.Book);
-			book.setImage(fileName);
-		}else {
-			// no new upload -keep old image
-			book.setImage(bookDto.getImage());
-		}
+		// ပုံကို ImageService သုံးပြီး Save လုပ်ပါ
+	    if (bookDto.getFile() != null && !bookDto.getFile().isEmpty()) {
+
+	        // 1. save new image
+	        String newFileName = imageService.save(bookDto.getFile(), ImageType.Book);
+
+	        // 2. delete old image
+	        if (book.getImage() != null) {
+	            imageService.delete(book.getImage(), ImageType.Book);
+	        }
+
+	        // 3. set new image
+	        book.setImage(newFileName);
+
+	    } else {
+	        book.setImage(bookDto.getImage());
+	    }
 		bookService.update(id, book);
 		
 		return "redirect:/book/all";
@@ -119,7 +133,13 @@ public class BookController {
 	
 	// book delete
 	@GetMapping("/delete/{id}")
-	public String delete(@PathVariable int id) {
+	public String delete(@PathVariable int id) {// 🔥 image 먼저 delete
+		Book book = bookService.getId(id);
+	    if (book.getImage() != null) {
+	        imageService.delete(book.getImage(), ImageType.Book);
+	    }
+
+		
 		bookService.drop(id);
 		return "redirect:/book/all";
 	}

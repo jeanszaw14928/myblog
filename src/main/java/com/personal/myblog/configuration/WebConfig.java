@@ -8,7 +8,7 @@ public class WebConfig implements WebMvcConfigurer {
 
     // myblog image configuration
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
-        registry.addResourceHandler("/uploads/**")
+        registry.addResourceHandler("/images/**")
                 .addResourceLocations("file:/home/copycoder/myblog-images/");
     }
 }

@@ -65,7 +65,7 @@
             
             <!-- old image preview -->
 			<div th:if="${post.image != null}" class="from-group full-width">
-			    <img th:src="@{/uploads/{img}(img=${post.image})}"
+			    <img th:src="@{${postImagePath} + ${post.image}}"
 			         width="120" alt="post image">
 			</div>
 			

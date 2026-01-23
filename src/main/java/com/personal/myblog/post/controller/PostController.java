@@ -46,6 +46,7 @@ public class PostController {
 	    });
 		
 		model.addAttribute("posts",posts);
+		model.addAttribute("pageTitle","Post Page");
 		return "post/index";
 	}
 	
